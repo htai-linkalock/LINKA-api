@@ -1,0 +1,47 @@
+{
+  "name": "LINKA-api",
+  "version": "1.0.0",
+  "description": "Dedicated API server",
+  "author": "HC <htai@linkalock.com>",
+  "engines": {
+    "node": "6.9.1"
+  },
+  "main": "bin/www.js",
+  "scripts": {
+    "start": "cross-env LOG_LEVEL=debug NODE_ENV=development NODE_PATH=src/ nodemon -r dotenv/config bin/www.js dotenv_config_path=.env.development",
+    "debug": "cross-env LOG_LEVEL=debug NODE_ENV=development NODE_PATH=src/ nodemon --debug-brk --inspect -r dotenv/config bin/www.js dotenv_config_path=.env.development",
+    "test": "cross-env LOG_LEVEL=debug NODE_ENV=development NODE_PATH=src/ nodemon -r dotenv/config test/index.js dotenv_config_path=.env.development"
+  },
+  "keywords": [
+    "express",
+    "node",
+    "node.js",
+    "mongodb",
+    "mongoose",
+    "es6",
+    "mocha",
+    "CRUD",
+    "REST",
+    "API",
+    "starter",
+    "boilerplate"
+  ],
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cross-env": "^3.1.4",
+    "dotenv": "^2.0.0",
+    "express": "^4.14.0",
+    "http": "0.0.0",
+    "method-override": "^2.3.6",
+    "mongoose": "^4.6.2",
+    "morgan": "^1.7.0",
+    "winston": "^2.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "cross-env": "3.1.3",
+    "mocha": "3.2.0",
+    "supertest": "2.0.1"
+  },
+  "license": "MIT"
+}
