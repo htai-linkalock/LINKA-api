@@ -13,6 +13,7 @@ const express = require('express')
 
 //var merchanthelpers = require('./merchanthelpers.js');
 
+var Merchantlocks = require('../models/merchantlocks')
 
 var net = require('net');
 
