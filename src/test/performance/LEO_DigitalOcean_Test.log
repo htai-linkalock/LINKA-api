@@ -1,0 +1,55 @@
+Digital Ocean Tests: 
+START: Mon Feb 04 2019 18:54:22 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Mon Feb 04 2019 18:54:23 GMT+0800 (HKT)
+Gross elapsed (ms): 5026
+Threads: 5 Iters: 10
+Net elapsed (ms): 26
+START: Mon Feb 04 2019 18:56:19 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Mon Feb 04 2019 18:56:19 GMT+0800 (HKT)
+START: Tue Feb 05 2019 06:03:39 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:03:39 GMT+0800 (HKT)
+START: Tue Feb 05 2019 06:07:03 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:07:03 GMT+0800 (HKT)
+START: Tue Feb 05 2019 06:07:29 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:07:29 GMT+0800 (HKT)
+START: Tue Feb 05 2019 06:08:24 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:08:24 GMT+0800 (HKT)
+START: Tue Feb 05 2019 06:10:53 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:10:53 GMT+0800 (HKT)
+START: Tue Feb 05 2019 06:11:18 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:11:18 GMT+0800 (HKT)
+Gross elapsed (ms): 5024
+Threads: 5 Iters: 10
+Net elapsed (ms): 24
+START: Tue Feb 05 2019 06:12:21 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:12:21 GMT+0800 (HKT)
+Gross elapsed (ms): 5024
+Threads: 5 Iters: 10
+Net elapsed (ms): 24
+START: Tue Feb 05 2019 06:13:07 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:13:07 GMT+0800 (HKT)
+Gross elapsed (ms): 5031
+Threads: 5 Iters: 10
+Net elapsed (ms): 31
+START: Tue Feb 05 2019 06:14:23 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:14:23 GMT+0800 (HKT)
+Gross elapsed (ms): 5025
+Threads: 5 Iters: 10
+Net elapsed (ms): 25
+START: Tue Feb 05 2019 06:17:04 GMT+0800 (HKT)
+got connections: 5
+BEGIN: Tue Feb 05 2019 06:17:04 GMT+0800 (HKT)
+Gross elapsed (ms): 5022
+Threads: 5 Iters: 10
+Net elapsed (ms): 22
