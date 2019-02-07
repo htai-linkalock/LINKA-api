@@ -13,7 +13,13 @@ const express = require('express')
 
 //var merchanthelpers = require('./merchanthelpers.js');
 
-var Merchantlocks = require('../models/merchantlocks')
+const Merchantlocks = require('../models/merchantlocks');
+const Tracking = require('../models/tracking');
+const MerchantActivities = require('../models/merchantactivities');
+const Merchants = require('../models/merchant');
+
+const TrackingStatus = require('../util/constants').TrackingStatus;
+const TrackingMode = require('../util/constants').TrackingMode;
 
 var net = require('net');
 
@@ -483,7 +489,7 @@ var option = {
                 }})
             }
         }else{ //If no tracking entry, then we create one.
-            tracking_id = Tracking.insert({
+            tracking_id = Tracking.create({
               lock_serial_no : mac_address,
               tracking_status: TrackingStatus.STATUS_ON,
               merchantlock: merchantlock._id,
@@ -518,7 +524,7 @@ var option = {
           merchanthelpers.update_merchantlock_geolocation(merchantlock, latitude, longitude);
         }
 
-        var result = MerchantActivities.insert(data);
+        var result = MerchantActivities.create(data);
         var merchant = Merchants.findOne({"_id": merchantlock.merchant_id});
 
         var merchantActivity = MerchantActivities.findOne(result);
@@ -552,7 +558,7 @@ var option = {
                 gps_fixes: (tracking.gps_fixes + 1)
               }})
         }else{  // If no tracking entry, then we create one.
-            tracking_id = Tracking.insert({
+            tracking_id = Tracking.create({
               lock_serial_no : mac_address,
               tracking_status: TrackingStatus.STATUS_ON,
               lock_id: lock_id,
@@ -569,7 +575,7 @@ var option = {
         this.userId = "leo";
         var userProfile_id = "leo";
 
-        Activitys.insert({
+        Activitys.create({
           lock_serial_no_index:mac_address,
           longitude: longitude,
           latitude: latitude,
