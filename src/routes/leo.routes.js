@@ -20,7 +20,7 @@ const Merchants = require('../models/merchant');
 
 const TrackingStatus = require('../util/constants').TrackingStatus;
 const TrackingMode = require('../util/constants').TrackingMode;
-
+const nodeEnv = process.env.NODE_ENV;
 var net = require('net');
 
 var HOST = '127.0.0.1';
@@ -44,6 +44,11 @@ var option = {
   // The sock object the callback function receives UNIQUE for each connection
   var tcpServer = net.createServer(function(sock) {
 
+      //Upon a new thread initialize the timers and counters
+      var iterCounter = 1;
+      var startTime = new Date();
+      var timeCounter = [];
+
       // We have a connection - a socket object is assigned to the connection automatically
       console.log('Server – CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
       var startTime = new Date();
@@ -54,11 +59,31 @@ var option = {
       var receivedData = ""; //Buffer for handling received data.
       // Add a 'data' event handler to this instance of socket
       sock.on('data', function(data) {    //Bind environment required to access collections https://stackoverflow.com/questions/21097178/making-tcp-connections-from-meteor-server
+          //save time per iteration for logging when socket ends
+          //only accessable at perf enviroment
+           if(nodeEnv=="perf"){
+            console.log("------------------ITERATION #: " +  iterCounter + "--------------------------")
+
+            if(iterCounter == 1){
+            //we are on the first iteration
+              var now = new Date();
+              console.log("iteration Time: " +(now - startTime)); 
+              timeCounter.push({timeStamp:now,difference:now - startTime});
+            }else{
+              var now = new Date();
+              var thisIterationTimeDiff =now - timeCounter[timeCounter.length-1].timeStamp;
+              console.log("iteration Time: " + thisIterationTimeDiff); 
+              timeCounter.push({timeStamp:now,difference:thisIterationTimeDiff});
+            }
+            iterCounter++; // increment the iteration to be in the next one
+          }
+
           console.log("On Data Handler: ")
           console.log('TCP DATA ' + sock.remoteAddress + ': ' + data);
           // Write the data back to the socket, the client will receive it as data from the server
           //sock.write('You said "' + data + '"');
-
+          //Log out the timers and counters per iteration
+           //console log the iteration Number
           console.log("Incoming data", data, " of type ", typeof data);
 
           //Convert "data" to be a string
@@ -79,8 +104,21 @@ var option = {
 
       // Add a 'close' event handler to this instance of socket
       sock.on('close', function(data) {
+        //log out the timers and counters the socket closes
+        if(nodeEnv=="perf"){
           var endTime = new Date();
-          console.log("LEOTIMING: " + endTime + " , "  + (endTime-startTime) + " ms")
+          var responseTime = endTime-startTime;
+          var totalTime = 0 ; //time in milli seconds
+          timeCounter.forEach((iter)=>{
+            totalTime += iter.difference 
+            console.log("ITERTIMES: " + iter.difference)
+            console.log("-----------------------------")
+          });
+          console.log("total number of iterations: " + (iterCounter - 1));
+          var accurateTimingPerIter = totalTime/(iterCounter -1);
+          console.log("LEOTIMING: " + endTime + " , "  + (endTime-startTime) + " ms," + "averageTimePerIter: " + accurateTimingPerIter+ "ms." );
+      
+        }
           console.log('CLOSED: ' + sock.remoteAddress +' '+ sock.remotePort);
       });
 

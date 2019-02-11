@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 logDebug('mongo: ' + process.env.MONGODB_URI + ' autoIndex: ' + (process.env.MONGODB_AUTOINDEX === 'true'));
-mongoose.connect(process.env.MONGODB_URI, {config: {autoIndex: process.env.MONGODB_AUTOINDEX === 'true'}});
+mongoose.connect(process.env.MONGODB_URI, {config: {autoIndex: process.env.MONGODB_AUTOINDEX === 'true'}, useMongoClient: true});
 
 mongoose.connection.on('error', () => {
   console.error('MongoDB connection error. Please make sure MongoDB is running.');
