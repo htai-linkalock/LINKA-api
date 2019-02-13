@@ -75,22 +75,21 @@ if(nodeEnv === 'perf') {
 
           payloads.forEach(payload => {
              if(payload.length > 0) {
+               var now = new Date();
+               HandleIncommingBase64Info(payload);
                if(nodeEnv==="perf") {
                   console.log("------------------ITERATION #: " +  iterCounter + "--------------------------")
 
                   if(iterCounter++ == 1){
                   //we are on the first iteration
-                    var now = new Date();
                     console.log("iteration Time: " +(now - startTime)); 
                     timeCounter.push({timeStamp:now,difference:now - startTime});
                   }else{
-                    var now = new Date();
                     var thisIterationTimeDiff =now - timeCounter[timeCounter.length-1].timeStamp;
                     console.log("iteration Time: " + thisIterationTimeDiff); 
                     timeCounter.push({timeStamp:now,difference:thisIterationTimeDiff});
                   }
                }
-               HandleIncommingBase64Info(payload);
              }
           });
       });
