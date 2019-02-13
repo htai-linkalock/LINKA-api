@@ -10,3 +10,4 @@ _*
 .idea
 *.swp
 perf.csv
+nohup.out
