@@ -49,7 +49,7 @@ if(nodeEnv === 'perf') {
   // Create a server instance, and chain the listen function to it
   // The function passed to net.createServer() becomes the event handler for the 'connection' event
   // The sock object the callback function receives UNIQUE for each connection
-  var tcpServer = net.createServer(function(sock) {
+  var tcpServer = net.createServer({allowHalfOpen: true}, function(sock) {
 
       //Upon a new thread initialize the timers and counters
       var iterCounter = 1;
@@ -57,7 +57,7 @@ if(nodeEnv === 'perf') {
       var timeCounter = [];
 
       // We have a connection - a socket object is assigned to the connection automatically
-      console.log('Server – CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
+      console.log('CreateServer – CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
       var startTime = new Date();
       /*
         All messages from the lock will end with '!'
@@ -68,74 +68,67 @@ if(nodeEnv === 'perf') {
       sock.on('data', function(data) {    //Bind environment required to access collections https://stackoverflow.com/questions/21097178/making-tcp-connections-from-meteor-server
           //save time per iteration for logging when socket ends
           //only accessable at perf enviroment
-           if(nodeEnv==="perf"){
-            console.log("ON DATA");
-            console.log("------------------ITERATION #: " +  iterCounter + "--------------------------")
-
-            if(iterCounter++ == 1){
-            //we are on the first iteration
-              var now = new Date();
-              console.log("iteration Time: " +(now - startTime)); 
-              timeCounter.push({timeStamp:now,difference:now - startTime});
-            }else{
-              var now = new Date();
-              var thisIterationTimeDiff =now - timeCounter[timeCounter.length-1].timeStamp;
-              console.log("iteration Time: " + thisIterationTimeDiff); 
-              timeCounter.push({timeStamp:now,difference:thisIterationTimeDiff});
-            }
-          }
-
-          // Write the data back to the socket, the client will receive it as data from the server
-          //sock.write('You said "' + data + '"');
-          //Log out the timers and counters per iteration
-           //console log the iteration Number
-          //console.log("Incoming data", data, " of type ", typeof data);
-
-          //Convert "data" to be a string
           data = data + '';
-          //console.log("Converted to ", typeof data);
+          console.log("RECEIVED DATA LENGTH: " + data.length + " - " + data)
+          const payloads = data.split("!");
+          console.log("Processing payloads: " + payloads.length);
 
+          payloads.forEach(payload => {
+             if(payload.length > 0) {
+               console.log("PROCESS PAYLOAD " + payload + " length: " + payload.length)
+               if(nodeEnv==="perf") {
+                  console.log("------------------ITERATION #: " +  iterCounter + "--------------------------")
 
-          receivedData = receivedData + data;
-
-          if(data.indexOf("!") != -1){ //Find the exclaimation mark
-            receivedData = receivedData.replace('!',''); //Remove the exclaimation mark!!
-
-            HandleIncommingBase64Info(receivedData);
-            receivedData = ""; //Clear the buffer
-          }
-
+                  if(iterCounter++ == 1){
+                  //we are on the first iteration
+                    var now = new Date();
+                    console.log("iteration Time: " +(now - startTime)); 
+                    timeCounter.push({timeStamp:now,difference:now - startTime});
+                  }else{
+                    var now = new Date();
+                    var thisIterationTimeDiff =now - timeCounter[timeCounter.length-1].timeStamp;
+                    console.log("iteration Time: " + thisIterationTimeDiff); 
+                    timeCounter.push({timeStamp:now,difference:thisIterationTimeDiff});
+                  }
+               }
+               HandleIncommingBase64Info(payload);
+             }
+          });
       });
 
       // Add a 'close' event handler to this instance of socket
       sock.on('close', function(data) {
         //log out the timers and counters the socket closes
-        if(nodeEnv==="perf"){
-            console.log("ON CLOSE");
-          var endTime = new Date();
-          var responseTime = endTime-startTime;
-          var totalTime = 0 ; //time in milli seconds
-          timeCounter.forEach((iter)=>{
-            totalTime += iter.difference 
-            console.log("ITERTIMES: " + iter.difference)
-            console.log("-----------------------------")
-          });
-          console.log("total number of iterations: " + timeCounter.length);
-          var accurateTimingPerIter = totalTime/timeCounter.length;
-          timingFS.appendFile(timingFile, "LEOTIMING," + 
-                                          endTime + "," + 
-                                          timeCounter.length + "," +
-                                          (endTime-startTime) + "," +
-                                          accurateTimingPerIter + "\n");
-          console.log("LEOTIMING: " + endTime + " , "  + (endTime-startTime) + " ms," + "averageTimePerIter: " + accurateTimingPerIter+ "ms." );
-      
-        }
-          console.log('CLOSED: ' + sock.remoteAddress +' '+ sock.remotePort);
+          console.log('ON CLOSE: ' + sock.remoteAddress +' '+ sock.remotePort);
       });
 
       // Add a 'close' event handler to this instance of socket
       sock.on('end', function(data) {
-          console.log('ENDED: ' + sock.remoteAddress +' '+ sock.remotePort);
+          console.log('ON END: ' + sock.remoteAddress +' '+ sock.remotePort);
+          if(nodeEnv==="perf"){
+            var endTime = new Date();
+            var responseTime = endTime-startTime;
+            var totalTime = 0 ; //time in milli seconds
+            timeCounter.forEach((iter)=>{
+              totalTime += iter.difference 
+              console.log("ITERTIMES: " + iter.difference)
+              console.log("-----------------------------")
+            });
+            console.log("total number of iterations: " + timeCounter.length);
+            var accurateTimingPerIter = totalTime/timeCounter.length;
+            timingFS.appendFile(timingFile, "LEOTIMING," + 
+                                            endTime + "," + 
+                                            timeCounter.length + "," +
+                                            (endTime-startTime) + "," +
+                                            accurateTimingPerIter + "\n");
+            console.log("LEOTIMING: " + endTime + " , "  + (endTime-startTime) + " ms," + "averageTimePerIter: " + accurateTimingPerIter+ "ms." );
+        
+          }
+
+      });
+
+      sock.on('error', function(err) {
+          console.log('ERROR: ' + err);
       });
 
 
@@ -153,9 +146,12 @@ if(nodeEnv === 'perf') {
   //console.log('Server listening on ' + server.address().address +':'+ server.address().port);
   tcpServer.on('connection', function(sock) {
 
-      console.log('Server – CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
+      console.log('New Connection: ' + sock.remoteAddress +':'+ sock.remotePort + " : " + sock.bufferSize);
       // other stuff is the same from here
 
+      sock.on('close', function(data) {
+        console.log("CLOSED!!!")
+      });
   });
 
 
