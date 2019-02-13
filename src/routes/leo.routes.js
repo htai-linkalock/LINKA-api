@@ -71,11 +71,10 @@ if(nodeEnv === 'perf') {
           data = data + '';
           console.log("RECEIVED DATA LENGTH: " + data.length + " - " + data)
           const payloads = data.split("!");
-          console.log("Processing payloads: " + payloads.length);
+          console.log("Processing payloads: " + (payloads.length - 1));
 
           payloads.forEach(payload => {
              if(payload.length > 0) {
-               console.log("PROCESS PAYLOAD " + payload + " length: " + payload.length)
                if(nodeEnv==="perf") {
                   console.log("------------------ITERATION #: " +  iterCounter + "--------------------------")
 
