@@ -1,7 +1,7 @@
 const express = require('express')
   , router = express.Router();
 
-
+const timingFS = require('fs');
 
 //This class handles all requests to and from the NOMAD Server for JT
 /*
@@ -21,6 +21,8 @@ const Merchants = require('../models/merchant');
 const TrackingStatus = require('../util/constants').TrackingStatus;
 const TrackingMode = require('../util/constants').TrackingMode;
 const nodeEnv = process.env.NODE_ENV;
+
+console.log("env: " + nodeEnv);
 var net = require('net');
 
 var HOST = '127.0.0.1';
@@ -29,6 +31,11 @@ var PORT = 6969;
 var option = {
     host:'35.161.51.217',
     port: 6969
+}
+
+var timingFile = 'perf.csv';
+if(nodeEnv === 'perf') {
+  timingFS.writeFile(timingFile, "token,timestamp,iterations,elapsedtime,averagetime\n");
 }
 
   // Create TCP client.
@@ -61,10 +68,11 @@ var option = {
       sock.on('data', function(data) {    //Bind environment required to access collections https://stackoverflow.com/questions/21097178/making-tcp-connections-from-meteor-server
           //save time per iteration for logging when socket ends
           //only accessable at perf enviroment
-           if(nodeEnv=="perf"){
+           if(nodeEnv==="perf"){
+            console.log("ON DATA");
             console.log("------------------ITERATION #: " +  iterCounter + "--------------------------")
 
-            if(iterCounter == 1){
+            if(iterCounter++ == 1){
             //we are on the first iteration
               var now = new Date();
               console.log("iteration Time: " +(now - startTime)); 
@@ -75,20 +83,17 @@ var option = {
               console.log("iteration Time: " + thisIterationTimeDiff); 
               timeCounter.push({timeStamp:now,difference:thisIterationTimeDiff});
             }
-            iterCounter++; // increment the iteration to be in the next one
           }
 
-          console.log("On Data Handler: ")
-          console.log('TCP DATA ' + sock.remoteAddress + ': ' + data);
           // Write the data back to the socket, the client will receive it as data from the server
           //sock.write('You said "' + data + '"');
           //Log out the timers and counters per iteration
            //console log the iteration Number
-          console.log("Incoming data", data, " of type ", typeof data);
+          //console.log("Incoming data", data, " of type ", typeof data);
 
           //Convert "data" to be a string
           data = data + '';
-          console.log("Converted to ", typeof data);
+          //console.log("Converted to ", typeof data);
 
 
           receivedData = receivedData + data;
@@ -105,7 +110,8 @@ var option = {
       // Add a 'close' event handler to this instance of socket
       sock.on('close', function(data) {
         //log out the timers and counters the socket closes
-        if(nodeEnv=="perf"){
+        if(nodeEnv==="perf"){
+            console.log("ON CLOSE");
           var endTime = new Date();
           var responseTime = endTime-startTime;
           var totalTime = 0 ; //time in milli seconds
@@ -114,8 +120,13 @@ var option = {
             console.log("ITERTIMES: " + iter.difference)
             console.log("-----------------------------")
           });
-          console.log("total number of iterations: " + (iterCounter - 1));
-          var accurateTimingPerIter = totalTime/(iterCounter -1);
+          console.log("total number of iterations: " + timeCounter.length);
+          var accurateTimingPerIter = totalTime/timeCounter.length;
+          timingFS.appendFile(timingFile, "LEOTIMING," + 
+                                          endTime + "," + 
+                                          timeCounter.length + "," +
+                                          (endTime-startTime) + "," +
+                                          accurateTimingPerIter + "\n");
           console.log("LEOTIMING: " + endTime + " , "  + (endTime-startTime) + " ms," + "averageTimePerIter: " + accurateTimingPerIter+ "ms." );
       
         }
@@ -227,12 +238,12 @@ var option = {
       //Decoding from base 64
       //https://stackoverflow.com/questions/14573001/nodejs-how-to-decode-base64-encoded-string-back-to-binary
       buf = new Buffer(base64data, 'base64');
-      console.log("Decoded buffer ");
-      console.log(buf);
+      //console.log("Decoded buffer ");
+      //console.log(buf);
 
       var pkt_type = buf.readUInt8(0);
-      console.log("Packet type");
-      console.log(pkt_type) ;
+      //console.log("Packet type");
+      //console.log(pkt_type) ;
 
       if(pkt_type == PKT_TYPE.TYPE_GNSS){
           parseGNSSPacket(buf);

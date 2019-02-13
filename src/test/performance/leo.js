@@ -33,13 +33,11 @@ function connect(threadId, callback) {
 	var client = net.createConnection(option, () => {
 		if(threadCreationTimings.length == 0){
 			var now =  new Date();
-			console.log("threadCreationTiming1: " + (now -startTime));
 			threadCreationTimings.push(now);
 			timeCreationDiffs.push(now -startTime)
 		}else{
 			var now = new Date();
 			var perviousTiming = threadCreationTimings[threadCreationTimings.length-1];
-			console.log("threadCreationTiming: " + (now - perviousTiming))
 			threadCreationTimings.push(now);
 			timeCreationDiffs.push((now - perviousTiming))
 		}
@@ -93,12 +91,11 @@ function send(client, threadId, i, last) {
 			var totalTime = endTime - beginTime;
 			var timingsSum = timeDiffs.reduce((total,num)=>{return total+num;});
 			var timingsCreationSum = timeCreationDiffs.reduce((total,num)=>{return total+num;});
-			console.log(timingsCreationSum + "  " + CONFIG.THREADS)
+			console.log(timingsCreationSum + " out of " + CONFIG.THREADS)
 			console.log("average thread Creation time: " + (timingsCreationSum/(CONFIG.THREADS)) + "ms");			
 			console.log("Gross elapsed (ms): " + totalTime);	
 			console.log("Threads: " + CONFIG.THREADS + " Iters: " + CONFIG.ITER);	
 			console.log("Net elapsed (ms): " + (totalTime - totalWait));
-			process.exit();
 		}
 		return;
 	}
@@ -107,7 +104,7 @@ function send(client, threadId, i, last) {
 	  var begin = new Date();
       //console.log(i + " threadId (" + threadId + "): " + CONFIG.PAYLOAD);
       client.write(CONFIG.PAYLOAD);
-      //console.log(i + " threadId (" + threadId + "): " + CONFIG.PAYLOAD + " " + (new Date() - begin) + " ms");
+      console.log(i + " threadId (" + threadId + "): " + CONFIG.PAYLOAD + " " + (new Date() - begin) + " ms");
       send(client, threadId, i+1, last)
 	}, CONFIG.WAIT)
 }
