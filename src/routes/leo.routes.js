@@ -38,13 +38,6 @@ if(nodeEnv === 'perf') {
   timingFS.writeFile(timingFile, "token,timestamp,iterations,elapsedtime,averagetime\n");
 }
 
-  // Create TCP client.
-  var client = net.createConnection(option, function () {
-      //console.log('Connection name : ' + connName);
-      console.log('Connection local address : ' + client.localAddress + ":" + client.localPort);
-      console.log('Connection remote address : ' + client.remoteAddress + ":" + client.remotePort);
-  });
-
 
   // Create a server instance, and chain the listen function to it
   // The function passed to net.createServer() becomes the event handler for the 'connection' event
