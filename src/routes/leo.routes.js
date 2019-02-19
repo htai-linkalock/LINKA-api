@@ -17,7 +17,8 @@ const Merchantlocks = require('../models/merchantlocks');
 const Tracking = require('../models/tracking');
 const MerchantActivities = require('../models/merchantactivities');
 const Merchants = require('../models/merchant');
-
+const Locks = require('../models/locks');
+const Activitys = require('../models/activitys');
 const TrackingStatus = require('../util/constants').TrackingStatus;
 const TrackingMode = require('../util/constants').TrackingMode;
 const nodeEnv = process.env.NODE_ENV;
@@ -332,31 +333,31 @@ if(nodeEnv === 'perf') {
       var reason_desc = "";
       switch(reason){
         case IOT_REASON.MODE_MANUAL:
-          state_desc = "REASON_BLUETOOTH";
+        reason_desc = "REASON_BLUETOOTH";
           break;
 
         case IOT_REASON.MODE_THEFT:
         case IOT_REASON.MODE_THEFT_PENDING:
         case IOT_REASON.MODE_THEFT_WAITING_GPS:
-          state_desc = "REASON_THEFT";
+        reason_desc = "REASON_THEFT";
           break;
         case IOT_REASON.MODE_PERIOD_A:
         case IOT_REASON.MODE_PERIOD_B:
-          state_desc = "REASON_PERIOD_TRACKING";
+        reason_desc = "REASON_PERIOD_TRACKING";
           break;
         case IOT_REASON.MODE_STATE_PING:
         case IOT_REASON.MODE_STATE_PING_WAITING_GPS:
-          state_desc = "REASON_STATE_PING";
+        reason_desc = "REASON_STATE_PING";
           break;
         case IOT_REASON.MODE_TRACK_UNLOCK:
-          state_desc = "REASON_UNLOCKED";
+        reason_desc = "REASON_UNLOCKED";
           break;
         case IOT_REASON.MODE_TRACK_LOCK:
-          state_desc = "REASON_LOCKED";
+        reason_desc = "REASON_LOCKED";
           break;
 
       }
-      return state_desc;
+      return reason_desc;
     }
 
 
@@ -392,7 +393,7 @@ if(nodeEnv === 'perf') {
       console.log("Packet reason");
       console.log(reason) ;
       var reason_desc = getIotReasonDesc(reason);
-
+      
       var state = buf.readUInt8(8);
       console.log("state");
       console.log(state) ;
@@ -513,132 +514,149 @@ if(nodeEnv === 'perf') {
     //By default, insert into the merchant activities table (if there is a merchant lock)
     //Or else, insert into the consumer table
     console.log("Insert LEO Activity")
-    var merchantlock = Merchantlocks.findOne({lock_serial_no: mac_address});
-
-    if(merchantlock){
+    var merchantlock = Merchantlocks.findOne({lock_serial_no: mac_address}).exec();
+    merchantlock.then((lock)=>{
+      if(lock){
 
         console.log("Found merchant lock, inserting merchant activity")
 
         //Is tracking active?
-        var tracking = Tracking.findOne({lock_serial_no : mac_address, tracking_status: TrackingStatus.STATUS_ON});
-
-        var tracking_id = "";
-        if(tracking){  //Tracking is already active, so let's increment the number of gps fixes
-            tracking_id = tracking._id;
-            if(longitude && latitude){
-              Tracking.update(tracking, {
-                $set: {
-                  gps_fixes: (tracking.gps_fixes + 1)
-                }})
-            }
-        }else{ //If no tracking entry, then we create one.
-            tracking_id = Tracking.create({
-              lock_serial_no : mac_address,
-              tracking_status: TrackingStatus.STATUS_ON,
-              merchantlock: merchantlock._id,
-              iot_reason: reason_desc,
-              tracking_mode: TrackingMode.MODE_THEFT,
-              gps_fixes : ((latitude && longitude) ? 1 : 0),
-              carrier: carrier,
-              rssi: rssi,
-              rat: rat
-            });
-        }
-
-        var data = {
-          lock_serial_no : mac_address,
-          longitude : longitude,
-          latitude : latitude,
-          battery_percent : battery,
-          msg_desc : state_desc,
-          uuid: "leo",
-          merchant_id :merchantlock.merchant_id,
-          iot : true,
-          speed : speed,
-          numSatellites : num_satellites,
-          direction : direction,
-          uncertainty: uncertainty,
-          iot_reason : reason_desc,
-          tracking_id: tracking_id
-        }
-
-        // Update merchantlock with lat/long
-        if (latitude && longitude) {
-          merchanthelpers.update_merchantlock_geolocation(merchantlock, latitude, longitude);
-        }
-
-        var result = MerchantActivities.create(data);
-        var merchant = Merchants.findOne({"_id": merchantlock.merchant_id});
-
-        var merchantActivity = MerchantActivities.findOne(result);
-
-        //Send a webhook to the merchant
-        SendMerchantWebhook(merchantActivity, merchant);
-
+        var tracking = Tracking.findOne({lock_serial_no : mac_address, tracking_status: TrackingStatus.STATUS_ON}).exec();
+        tracking.then((track)=>{
+          var tracking_id = "";
+          if(track){  //Tracking is already active, so let's increment the number of gps fixes
+              console.log("Tracking is already active, so let's increment the number of gps fixes")
+              tracking_id = tracking._id;
+              if(longitude && latitude){
+                Tracking.update(tracking, {
+                  $set: {
+                    gps_fixes: (tracking.gps_fixes + 1)
+                  }})
+              }
+          }else{ //If no tracking entry, then we create one.
+            console.log("no tracking entry, then we create one")
+  
+              tracking_id = Tracking.create({
+                lock_serial_no : mac_address,
+                tracking_status: TrackingStatus.STATUS_ON,
+                merchantlock: lock._id,
+                iot_reason: reason_desc,
+                tracking_mode: TrackingMode.MODE_THEFT,
+                gps_fixes : ((latitude && longitude) ? 1 : 0),
+                carrier: carrier,
+                rssi: rssi,
+                rat: rat
+              });
+          }
+  
+          var data = {
+            lock_serial_no : mac_address,
+            longitude : longitude,
+            latitude : latitude,
+            battery_percent : battery,
+            msg_desc : state_desc,
+            uuid: "leo",
+            merchant_id :lock.merchant_id,
+            iot : true,
+            speed : speed,
+            numSatellites : num_satellites,
+            direction : direction,
+            uncertainty: uncertainty,
+            iot_reason : reason_desc,
+            tracking_id: tracking_id
+          }
+  
+          // Update merchantlock with lat/long
+          if (latitude && longitude) {
+            merchanthelpers.update_merchantlock_geolocation(lock, latitude, longitude);
+          }
+  
+          var result = MerchantActivities.create(data);
+          var merchant = Merchants.findOne({"_id": lock.merchant_id});
+  
+          var merchantActivity = MerchantActivities.findOne(result);
+  
+          //Send a webhook to the merchant
+          SendMerchantWebhook(merchantActivity, merchant);
+        })
+        
     }else{
         console.log("No merchant lock, inserting consumer activity")
 
         //Check if the lock object exists.
         var lock_id = "";
 
-        var lock = Locks.findOne({serial_no: mac_address, removed: false});
-        if (lock) {
-          lock_id = lock._id;
-        } else {
-
-          //No Consumer Lock and No merchant lock!!
-          // Don't insert anything
-          return;
-        }
-
+        var lock = Locks.findOne({serial_no: mac_address, removed: false}).exec();
+        var result = lock.then((lockFound)=>{
+          if (lockFound) {
+            console.log("the found lock: " +lockFound)
+            lock_id = lockFound._id;
+          } else {
+            //No Consumer Lock and No merchant lock!!
+            // Don't insert anything
+            return;
+          }
+          var tracking_id = "";
         //Is tracking active?
-        var tracking = Tracking.findOne({lock_serial_no : mac_address, tracking_status: TrackingStatus.STATUS_ON});
-        var tracking_id = "";
-        if(tracking){   //Tracking is already active, so let's increment the number of gps fixes
-            tracking_id = tracking._id;
-            Tracking.update(tracking, {
-              $set: {
-                gps_fixes: (tracking.gps_fixes + 1)
-              }})
-        }else{  // If no tracking entry, then we create one.
-            tracking_id = Tracking.create({
-              lock_serial_no : mac_address,
-              tracking_status: TrackingStatus.STATUS_ON,
-              lock_id: lock_id,
-              iot_reason: reason_desc,
-              tracking_mode: TrackingMode.MODE_THEFT,
-              gps_fixes : ((latitude && longitude) ? 1 : 0),
-              carrier: carrier,
-              rssi: rssi
-            });
-        }
+        var tracking = Tracking.findOne({lock_serial_no : mac_address, tracking_status: TrackingStatus.STATUS_ON}).exec();
+        tracking.then((trackFound)=>{
+         
+          if(trackFound){   //Tracking is already active, so let's increment the number of gps fixes
+              console.log("adding a new gps fix to existingtracking doc ....")              
+              tracking_id = trackFound._id;
+              Tracking.update(trackFound, {
+                $set: {
+                  gps_fixes: (trackFound.gps_fixes + 1)
+                }})
+          }else{  // If no tracking entry, then we create one.
+            console.log("creating a new tracking doc ....")
+              tracking_id = Tracking.create({
+                lock_serial_no : mac_address,
+                tracking_status: TrackingStatus.STATUS_ON,
+                lock_id: lock_id,
+                iot_reason: reason_desc,
+                tracking_mode: TrackingMode.MODE_THEFT,
+                gps_fixes : ((latitude && longitude) ? 1 : 0),
+                carrier: carrier,
+                rssi: rssi
+              });
+          }
 
-        //self.userId = "leo";
-        //Use default userprofile Id "LEO"
-        this.userId = "leo";
-        var userProfile_id = "leo";
 
-        Activitys.create({
-          lock_serial_no_index:mac_address,
-          longitude: longitude,
-          latitude: latitude,
-          msg_desc : state_desc,
-          batteryPercent: battery,
-          iot: true,
-          direction: direction,
-          speed: speed,
-          numSatellites: num_satellites,
-          uncertainty : uncertainty,
-          iot_reason : reason_desc,
-          lock_id: lock_id,
-          userProfile_id: userProfile_id,
-          tracking_id: tracking_id
-        });
+          //self.userId = "leo";
+          //Use default userprofile Id "LEO"
+          this.userId = "leo";
+          var userProfile_id = "leo";
 
-        if(latitude && longitude){
-          UpdateLockLocation(lock_id, latitude, longitude);
-        }
+          Activitys.create({
+            lock_serial_no_index:mac_address,
+            longitude: longitude,
+            latitude: latitude,
+            msg_desc : state_desc,
+            batteryPercent: battery,
+            iot: true,
+            direction: direction,
+            speed: speed,
+            numSatellites: num_satellites,
+            uncertainty : uncertainty,
+            iot_reason : reason_desc,
+            lock_id: lock_id,
+            userProfile_id: userProfile_id,
+            tracking_id: tracking_id
+          });
+
+          if(latitude && longitude && lock_id){
+            UpdateLockLocation(lock_id, latitude, longitude);
+          }
+        })
+        })
+
+        
+        
+
     }
+    })
+
   }
 
     var closeConnectionPacket = function(buf){
@@ -696,6 +714,30 @@ if(nodeEnv === 'perf') {
             tracking_end_date: new Date(),
           }});
       }
+    }
+
+    UpdateLockLocation = function(lock_id, latitude, longitude) {
+      console.log("gathered lockid:" +lock_id)
+      if (typeof(longitude) === "string") { longitude = Number(longitude); }
+      if (typeof(latitude)  === "string") { latitude  = Number(latitude);  }
+  
+      if(longitude && latitude){
+          //Check for valid lat long values
+          if (longitude <= 180 && longitude >= -180 && latitude <= 90 && latitude >= -90) {
+  
+            //Update the location of the lock
+            Locks.update({ _id: lock_id }, {$set: {
+              location: {
+                type : "Point",
+                coordinates : [
+                    longitude,
+                    latitude
+                ]
+              }
+            }});
+          }
+      }
+  
     }
 
 //Mosca MQTT server not neccessary

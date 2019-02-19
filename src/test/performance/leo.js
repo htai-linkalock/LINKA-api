@@ -96,6 +96,7 @@ function send(client, threadId, i, last) {
 			console.log("Gross elapsed (ms): " + totalTime);	
 			console.log("Threads: " + CONFIG.THREADS + " Iters: " + CONFIG.ITER);	
 			console.log("Net elapsed (ms): " + (totalTime - totalWait));
+			
 		}
 		return;
 	}
