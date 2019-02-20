@@ -35,7 +35,10 @@ const MerchantLockSchema = new mongoose.Schema({
   modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
   removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
   removedAt: {type: Date, optional: true, autoform: {omit: true}   },
-  location:{ type: [Number], optional: true, defaultValue: { type : "Point",  coordinates : [0,0]} },
+   location:{ 
+    "type" : {type: String, optional: true},  
+    "coordinates" : [Number] 
+  },
   lock_number:{ type: Number, optional: true },
   qr_code:{ type: String, optional: true },
   subs_initial_rate: { type: Number, optional: true, decimal: false },  // Override for subscription initial rate should be expressed as the smallest currency available (i.e. 123 would be 123 yen, or 1.23 dollars)

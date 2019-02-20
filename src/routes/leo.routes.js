@@ -519,20 +519,51 @@ if(nodeEnv === 'perf') {
       if(lock){
 
         console.log("Found merchant lock, inserting merchant activity")
-
+	
         //Is tracking active?
         var tracking = Tracking.findOne({lock_serial_no : mac_address, tracking_status: TrackingStatus.STATUS_ON}).exec();
         tracking.then((track)=>{
           var tracking_id = "";
+	var data = {};
           if(track){  //Tracking is already active, so let's increment the number of gps fixes
               console.log("Tracking is already active, so let's increment the number of gps fixes")
-              tracking_id = tracking._id;
-              if(longitude && latitude){
-                Tracking.update(tracking, {
+              tracking_id = track._id;
+             
+                Tracking.update(track, {
                   $set: {
-                    gps_fixes: (tracking.gps_fixes + 1)
-                  }})
-              }
+                    gps_fixes: (track.gps_fixes + 1)
+                  }},(err)=>{
+                    data = {
+                      lock_serial_no : mac_address,
+                      longitude : longitude,
+                      latitude : latitude,
+                      battery_percent : battery,
+                      msg_desc : state_desc,
+                      uuid: "leo",
+                      merchant_id :lock.merchant_id,
+                      iot : true,
+                      speed : speed,
+                      numSatellites : num_satellites,
+                      direction : direction,
+                      uncertainty: uncertainty,
+                      iot_reason : reason_desc,
+                      tracking_id: tracking_id
+                    }
+
+          // Update merchantlock with lat/long
+          if (latitude && longitude) {
+            update_merchantlock_geolocation(lock, latitude, longitude);
+          }
+
+          var result = MerchantActivities.create(data);
+          var merchant = Merchants.findOne({"_id": lock.merchant_id});
+  
+          var merchantActivity = MerchantActivities.findOne(result);
+  
+          //Send a webhook to the merchant
+          SendMerchantWebhook(merchantActivity, merchant);
+                  })
+              
           }else{ //If no tracking entry, then we create one.
             console.log("no tracking entry, then we create one")
   
@@ -546,29 +577,28 @@ if(nodeEnv === 'perf') {
                 carrier: carrier,
                 rssi: rssi,
                 rat: rat
-              });
-          }
-  
-          var data = {
-            lock_serial_no : mac_address,
-            longitude : longitude,
-            latitude : latitude,
-            battery_percent : battery,
-            msg_desc : state_desc,
-            uuid: "leo",
-            merchant_id :lock.merchant_id,
-            iot : true,
-            speed : speed,
-            numSatellites : num_satellites,
-            direction : direction,
-            uncertainty: uncertainty,
-            iot_reason : reason_desc,
-            tracking_id: tracking_id
-          }
-  
+              },(err,result)=>{
+		  tracking_id = result._id
+                data = {
+                  lock_serial_no : mac_address,
+                  longitude : longitude,
+                  latitude : latitude,
+                  battery_percent : battery,
+                  msg_desc : state_desc,
+                  uuid: "leo",
+                  merchant_id :lock.merchant_id,
+                  iot : true,
+                  speed : speed,
+                  numSatellites : num_satellites,
+                  direction : direction,
+                  uncertainty: uncertainty,
+                  iot_reason : reason_desc,
+                  tracking_id: result._id
+                }
+
           // Update merchantlock with lat/long
           if (latitude && longitude) {
-            merchanthelpers.update_merchantlock_geolocation(lock, latitude, longitude);
+            update_merchantlock_geolocation(lock, latitude, longitude);
           }
   
           var result = MerchantActivities.create(data);
@@ -577,7 +607,9 @@ if(nodeEnv === 'perf') {
           var merchantActivity = MerchantActivities.findOne(result);
   
           //Send a webhook to the merchant
-          SendMerchantWebhook(merchantActivity, merchant);
+          SendMerchantWebhook(merchantActivity, merchant);	
+		});
+          }
         })
         
     }else{
@@ -658,7 +690,28 @@ if(nodeEnv === 'perf') {
     })
 
   }
-
+	
+	var update_merchantlock_geolocation = function(merchantlock, latitude, longitude) {
+console.log(JSON.stringify(merchantlock,null,2))
+  if (merchantlock && latitude && longitude) {
+    var success = Merchantlocks.findOneAndUpdate({"lock_serial_no":merchantlock.lock_serial_no}, {$set: {
+      latitude: latitude,
+      longitude: longitude,
+      location: {
+        type : "Point",
+        coordinates : [
+            longitude,
+            latitude
+        ]
+      }
+    }},{new: true},(err,doc)=>{
+	if (err) {
+        console.log("Something wrong when updating data!");
+    	}
+	console.log(doc);
+	});
+  }
+};
     var closeConnectionPacket = function(buf){
         console.log("Close connection packet");
 
