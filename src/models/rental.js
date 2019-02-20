@@ -9,12 +9,21 @@ const mongoose = require('mongoose')
  * RentalLock schema
  */
 const RentalLockSchema = new mongoose.Schema({
-  starting_location:{ type: [Number], optional: true },
-  ending_location:{ type: [Number], optional: true },
+  starting_location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  },
+  ending_location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  },
   start_date: { type: Date, optional: true },
   end_date: { type: Date, optional: true },
   initial_end_date: { type: Date, optional: true },
-  initial_ending_location:{ type: [Number], optional: true },
+  initial_ending_location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  },
   merchantlock: {type: String, optional: true},
   merchantlock_serial_no: {type: String, optional: true},
   merchantlock_lock_number: {type: String, optional: true},
@@ -49,17 +58,21 @@ const RentalSchema = new mongoose.Schema({
   total_fare_formatted: { type: String, optional: true },  // Display value (formatted)
   fare_canceled: { type: Boolean, optional: true, defaultValue: false },
   needs_attention: { type: Boolean, optional: true, defaultValue: false }, // If there is a payment issue manual intervention might be necessary
-  starting_location:{ type: [Number], optional: true }, //deprecated
-  ending_location:{ type: [Number], optional: true }, //deprecated
+  starting_location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  }, //deprecated
+  ending_location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  }, //deprecated
   route: {type: Object, blackbox:true, optional:true}, // SimpleSchema is broken, inserts all coordinates as 'null' unless we use blackbox - This is the GPS route
   payment_stripe: {type: Object, blackbox:true, optional:true}, // Keep this a black box because we'll be storing various stripe api responses here
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
   locks:{ type: [RentalLockSchema], optional: true },
   rental_ended: { type: Boolean, optional: true, defaultValue: false },
   prepay: { type: Boolean, optional: true, defaultValue: false }, // If we are prepay using account balance
 
-}, { timestamps: true });
+},{timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**

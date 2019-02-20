@@ -31,7 +31,10 @@ const MerchantSchema = new mongoose.Schema({
   eula: {type: String, optional: true}, // End User License Agreement
   currency: {type: String, optional: true},
   hold_amount: {type: Number, optional: true, decimal: false},
-  location:{ type: [Number], optional: true }, // 'home' location of merchant, used in finding bike share and zooming in on fleetview
+  location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  }, // 'home' location of merchant, used in finding bike share and zooming in on fleetview
   api_key: {type: String, optional: true},
   secret_key: {type: String, optional: true},
   access_token: {type: String, optional: true},
@@ -42,12 +45,10 @@ const MerchantSchema = new mongoose.Schema({
   is_suspended: {type: Boolean, optional: true, defaultValue: false},
   multiple_bikes: {type: Boolean, optional: true, defaultValue: false},
   webhook: {type: String, optional: true},            //Webhook for merchant API
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
   removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
   removedAt: {type: Date, optional: true, autoform: {omit: true}   }
 
-}, { timestamps: true });
+}, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**

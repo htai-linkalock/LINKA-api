@@ -524,7 +524,7 @@ if(nodeEnv === 'perf') {
         var tracking = Tracking.findOne({lock_serial_no : mac_address, tracking_status: TrackingStatus.STATUS_ON}).exec();
         tracking.then((track)=>{
           var tracking_id = "";
-	var data = {};
+	        var data = {};
           if(track){  //Tracking is already active, so let's increment the number of gps fixes
               console.log("Tracking is already active, so let's increment the number of gps fixes")
               tracking_id = track._id;
@@ -692,8 +692,8 @@ if(nodeEnv === 'perf') {
   }
 	
 	var update_merchantlock_geolocation = function(merchantlock, latitude, longitude) {
-console.log(JSON.stringify(merchantlock,null,2))
   if (merchantlock && latitude && longitude) {
+    
     var success = Merchantlocks.findOneAndUpdate({"lock_serial_no":merchantlock.lock_serial_no}, {$set: {
       latitude: latitude,
       longitude: longitude,
@@ -704,11 +704,11 @@ console.log(JSON.stringify(merchantlock,null,2))
             latitude
         ]
       }
-    }},{new: true},(err,doc)=>{
+    }},(err,doc)=>{
 	if (err) {
         console.log("Something wrong when updating data!");
-    	}
-	console.log(doc);
+      }
+      console.log("Merchant lock location updated successfully... ")
 	});
   }
 };

@@ -14,8 +14,6 @@ const TrackingSchema = new mongoose.Schema({
   lock_serial_no: {type: String, optional: true },
   tracking_mode: {type: Number, optional: true },         //Tracking Mode
   iOT_reason: {type: String, optional: true },
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
   lock_id: {type: String, optional: true },
   merchantlock: {type: String, optional: true},
   carrier: {type: String, optional: true},
@@ -26,7 +24,7 @@ const TrackingSchema = new mongoose.Schema({
   tracking_end_date: { type: Date, optional: true },
   data_available: {type: Number, optional: true},
   gps_fixes : {type: Number, optional: true, defaultValue: 0},
-}, { timestamps: true });
+}, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**

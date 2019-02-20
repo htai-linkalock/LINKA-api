@@ -25,12 +25,10 @@ const userProfileSchema = new mongoose.Schema({
   "current_rate_plan.$": {type:Object , blackbox:true,optional:true},
   promotions:{type:Array , blackbox:true,optional:true},
   "promotions.$":{type:Object , blackbox:true,optional:true},
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
   owner: {type: String, autoValue: function() { return INUPSERT(this, this.userId || self.userId) }, autoform: {omit: true} },
   removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
   removedAt: {type: Date, optional: true, autoform: {omit: true}   },
-}, { timestamps: true });
+}, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**

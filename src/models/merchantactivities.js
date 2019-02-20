@@ -29,9 +29,10 @@ const MerchantActivitiesSchema = new mongoose.Schema({
   msg_desc: {type: String, optional: true, autoform: {readonly: true} },
   latitude: {type: Number, decimal: true, optional: true, autoform: {readonly: true} },
   longitude: {type: Number, decimal: true, optional: true, autoform: {readonly: true} },
-  location:{ type: [Number], optional: true },
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
+  location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  },
   removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
   removedAt: {type: Date, optional: true, autoform: {omit: true} },
   iot: {type: Boolean, optional: true },
@@ -41,7 +42,7 @@ const MerchantActivitiesSchema = new mongoose.Schema({
   direction: {type: Number, optional: true},
   speed: {type: Number, optional: true},
   tracking_id: {type: String, optional: true },
-}, { timestamps: true });
+}, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**

@@ -31,12 +31,10 @@ const MerchantLockSchema = new mongoose.Schema({
   v2_access_key_user: {type: String, optional: true, autoform: {readonly: true} },
   v2_access_key_admin_2: {type: String, optional: true, autoform: {readonly: true} },
   v2_access_key_user_2: {type: String, optional: true, autoform: {readonly: true} },
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
-  removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
-  removedAt: {type: Date, optional: true, autoform: {omit: true}   },
+  removed: {type: Boolean, optional: true, defaultValue: false  },
+  removedAt: {type: Date, optional: true   },
    location:{ 
-    "type" : {type: String, optional: true},  
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
     "coordinates" : [Number] 
   },
   lock_number:{ type: Number, optional: true },
@@ -61,7 +59,7 @@ const MerchantLockSchema = new mongoose.Schema({
   maintenance_reason: { type: String, optional: true },
   maintenance_user_id: { type: String, optional: true },
   maintenance_date: { type: Date, optional: true }
-}, { timestamps: true });
+},{timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**

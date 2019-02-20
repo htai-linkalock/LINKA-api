@@ -23,10 +23,8 @@ const SimSchema = new mongoose.Schema({
   iccid: {type: String, optional: true},
   imei: {type: String, optional: true},
   data: {type: [DataRemainingSchema], optional: true},
-  activation_date: { type: Date, optional: true },    //Meant for Prepaid to track when the SIM data plan will expire
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  }
-}, { timestamps: true });
+  activation_date: { type: Date, optional: true }  //Meant for Prepaid to track when the SIM data plan will expire
+}, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**

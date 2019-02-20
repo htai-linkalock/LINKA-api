@@ -19,13 +19,14 @@ const LockSchema = new mongoose.Schema({
   longitude: {type: Number, decimal: true, optional: true},
   battery_percent: {type: Number, optional: true, decimal: true},
   is_locked: {type: Boolean, optional: false, optional: true, defaultValue: false},
-  createdAt: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, autoform: {omit: true}  },
-  modifiedAt: {type: Date, autoValue: function() { return new Date; }, autoform: {omit: true}  },
   owner: {type: String, optional: true, autoValue: function() { return INUPSERT(this, this.userId || self.userId) }, autoform: {omit: true} },
   removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
   removedAt: {type: Date, optional: true, autoform: {omit: true}   },
-  location:{ type: [Number], optional: true }
-}, { timestamps: true });
+  location:{ 
+    "type" : {type: String, optional: true, defaultValue:"Point"},  
+    "coordinates" : [Number] 
+  }
+}, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
 /**
