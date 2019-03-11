@@ -14,7 +14,7 @@ const TrackingSchema = new mongoose.Schema({
   lock_serial_no: {type: String, optional: true },
   tracking_mode: {type: Number, optional: true },         //Tracking Mode
   iOT_reason: {type: String, optional: true },
-  lock_id: {type: String, optional: true },
+  lock_id: {type: Schema.Types.ObjectId, ref: 'lock'},
   merchantlock: {type: String, optional: true},
   carrier: {type: String, optional: true},
   rssi: {type: Number, optional: true},

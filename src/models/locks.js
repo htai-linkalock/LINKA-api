@@ -10,16 +10,16 @@ const mongoose = require('mongoose')
  */
 const LockSchema = new mongoose.Schema({
   name: {type: String, optional: true},
-  userProfile_id: {type: String, optional: true},
+  userProfile_id:{type: Schema.Types.ObjectId, ref: 'userProfile'},
   user_name: {type: String, optional: true},
   user_email: {type: String, optional: true},
   serial_no: {type: String, optional: true},
-  customer_id: {type: String, optional: true},
+  customer_id: {type: Schema.Types.ObjectId, ref: 'userProfile'},
   latitude: {type: Number, decimal: true, optional: true},
   longitude: {type: Number, decimal: true, optional: true},
   battery_percent: {type: Number, optional: true, decimal: true},
   is_locked: {type: Boolean, optional: false, optional: true, defaultValue: false},
-  owner: {type: String, optional: true, autoValue: function() { return INUPSERT(this, this.userId || self.userId) }, autoform: {omit: true} },
+  owner: { type: Schema.Types.ObjectId, ref:"user" },
   removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
   removedAt: {type: Date, optional: true, autoform: {omit: true}   },
   location:{ 

@@ -33,15 +33,15 @@ const RentalLockSchema = new mongoose.Schema({
  * Rental schema
  */
 const RentalSchema = new mongoose.Schema({
-  merchant_id: {type: String, optional: true},
+  merchant_id: {type: Schema.Types.ObjectId, ref: 'merchant'},
   reservation_start_date: { type: Date, optional: true },
   reservation_canceled: {type: Boolean, optional: true, defaultValue: false },
   start_date: { type: Date, optional: true }, //deprecated
   end_date: { type: Date, optional: true }, //deprecated
   advance_reservation_start_date: { type: Date, optional: true }, // If we're on an advance reservation, note the start and end times
   advance_reservation_end_date: { type: Date, optional: true }, // If we're on an advance reservation, note the start and end times
-  user_id: { type: String, optional: true },
-  user_profile_id: { type: String, optional: true },
+  user_id: {type: Schema.Types.ObjectId, ref: 'user'},
+  user_profile_id: {type: Schema.Types.ObjectId, ref: 'userProfile'},
   name: {type: String, optional: true},
   user_email: {type: String, optional: true},
   merchantlock: {type: String, optional: true}, //deprecated

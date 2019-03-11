@@ -1,8 +1,8 @@
 {
-	"ADDRESS":"127.0.0.1",
+	"ADDRESS":"test.linkalock.com",
 	"PORT": 6969,
 	"WAIT": 50,
-	"THREADS": 1,
-	"ITER": 1,
-	"PAYLOAD": "AI1Ob90Q4AEDVyI6F0CSTUNCCwEAAAMZAA==!"
+	"THREADS": 1000,
+	"ITER": 4,
+	"PAYLOAD": "AXoFhiXW/wEEUSJBVCZUIgAAAAcAAA==!!"
 }

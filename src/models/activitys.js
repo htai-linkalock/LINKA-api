@@ -9,7 +9,7 @@ const mongoose = require('mongoose')
  * User schema
  */
 const ActivitysSchema = new mongoose.Schema({
-  userProfile_id: Schema.Types.ObjectId,
+  userProfile_id:{ type: Schema.Types.ObjectId, ref:"userProfile" },
   uuid: {type: String, optional: true},
   platform: {type: String, optional: true },
   os_version: {type: String, optional: true },
@@ -21,8 +21,8 @@ const ActivitysSchema = new mongoose.Schema({
   sleep_unlock_sec: {type: Number, optional: true },
   user_name: {type: String, optional: true},
   user_email: {type: String, optional: true},
-  customer_id: {type: String, optional: true},
-  lock_id: Schema.Types.ObjectId,
+  customer_id:{type: String, optional:true},
+  lock_id:{ type: Schema.Types.ObjectId, ref:"lock" },
   lock_serial_no_index: {type: String, optional: true },
   record_date: {type: Date, autoValue: function() { return INUPSERT(this, new Date); }, optional: true, autoform: {readonly: true} },
   linka_activity_status: {type: Number, optional: true, defaultValue: 0},
@@ -38,7 +38,7 @@ const ActivitysSchema = new mongoose.Schema({
     "type" : {type: String, optional: true, defaultValue:"Point"},  
     "coordinates" : [Number] 
   },
-  owner: {type: String, autoValue: function() { return INUPSERT(this, this.userId || self.userId) }, autoform: {omit: true} },
+  owner: { type: Schema.Types.ObjectId, ref:"user" },
   removed: {type: Boolean, optional: true, defaultValue: false, autoform: {omit: true}   },
   removedAt: {type: Date, optional: true, autoform: {omit: true}   },
   iot: {type: Boolean, optional: true },
@@ -47,7 +47,7 @@ const ActivitysSchema = new mongoose.Schema({
   numSatellites: {type: Number, optional: true},
   direction: {type: Number, optional: true},
   speed: {type: Number, optional: true},
-  tracking_id: {type: String, optional: true },
+  tracking_id: { type: Schema.Types.ObjectId, ref:"tracking" },
 }, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 function validateUsername(username) {

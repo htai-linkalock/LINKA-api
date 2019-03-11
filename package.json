@@ -11,7 +11,7 @@
     "start": "cross-env LOG_LEVEL=debug NODE_ENV=development NODE_PATH=src/ nodemon -r dotenv/config bin/www.js dotenv_config_path=.env.development",
     "debug": "cross-env LOG_LEVEL=debug NODE_ENV=development NODE_PATH=src/ nodemon --debug-brk --inspect -r dotenv/config bin/www.js dotenv_config_path=.env.development",
     "test": "cross-env LOG_LEVEL=debug NODE_ENV=development NODE_PATH=src/ nodemon -r dotenv/config test/index.js dotenv_config_path=.env.development",
-    "perf-test": "cross-env LOG_LEVEL=debug NODE_ENV=perf NODE_PATH=src/ nodemon -r dotenv/config bin/www.js dotenv_config_path=.env.example"
+    "perf-test": "cross-env LOG_LEVEL=debug NODE_ENV=perf NODE_PATH=src/ nodemon -r dotenv/config bin/www.js dotenv_config_path=.env.development"
   },
   "keywords": [
     "express",

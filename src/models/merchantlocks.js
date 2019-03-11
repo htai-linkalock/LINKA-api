@@ -9,9 +9,9 @@ const mongoose = require('mongoose')
  * User schema
  */
 const MerchantLockSchema = new mongoose.Schema({
-  merchant_id: {type: String, optional: true},
+  merchant_id: {type: Schema.Types.ObjectId, ref: 'merchant'},
   name: {type: String, optional: true},
-  user_id: {type: String, optional: true},
+  user_id:{type: Schema.Types.ObjectId, ref: 'user'},
   user_email: {type: String, optional: true},
   lock_battery_percent: {type: Number, optional: true, decimal: true},
   lock_serial_no: {type: String, optional: true},
@@ -52,7 +52,7 @@ const MerchantLockSchema = new mongoose.Schema({
   rental_start_date: { type: Date, optional: true },
   rental_end_date: { type: Date, optional: true },
   rental_user_id: { type: String, optional: true },
-  rental_id: { type: String, optional: true },
+  rental_id: {type: Schema.Types.ObjectId, ref: 'rental'},
   maintenance_required: { type: Boolean, optional: true },
   maintenance_uuid: { type: String, optional: true },
   maintenance_status: { type: String, optional: true },

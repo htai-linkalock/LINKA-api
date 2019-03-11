@@ -9,7 +9,7 @@ const mongoose = require('mongoose')
  * User schema
  */
 const MerchantActivitiesSchema = new mongoose.Schema({
-  merchant_id: {type: String, optional: true},
+  merchant_id:{type: Schema.Types.ObjectId, ref: 'merchant'},
   uuid: {type: String, optional: true},
   maintenance_uuid: {type: String, optional: true},  // Only used for LINKA GO Maintenance requests
   lock_serial_no: {type: String, optional: true },
@@ -41,7 +41,7 @@ const MerchantActivitiesSchema = new mongoose.Schema({
   numSatellites: {type: Number, optional: true},
   direction: {type: Number, optional: true},
   speed: {type: Number, optional: true},
-  tracking_id: {type: String, optional: true },
+  tracking_id: {type: Schema.Types.ObjectId, ref: 'tracking'},
 }, {timestamps: { createdAt: 'createdAt', updatedAt: 'modifiedAt' }});
 
 
